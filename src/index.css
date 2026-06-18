@@ -1,11 +1,3 @@
-/**
- * styles.css
- *
- * Spotify-inspired modern dark theme for the Carbon Footprint Tracker.
- * Employs CSS variables, CSS Grid, and responsive design for a sleek,
- * "curated playlist" aesthetic that fixes the previous design issues.
- */
-
 :root {
   --bg-base: #121212;
   --bg-elevated: #181818;
@@ -39,7 +31,6 @@ body {
   padding: 40px 20px;
 }
 
-/* Header */
 .hero {
   margin-bottom: 40px;
 }
@@ -57,14 +48,12 @@ body {
   color: var(--text-base);
 }
 
-/* Layout Grid */
 .layout-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 32px;
 }
 
-/* Cards */
 .card {
   background-color: var(--bg-elevated);
   border-radius: var(--card-radius);
@@ -82,7 +71,6 @@ body {
   font-weight: 700;
 }
 
-/* Input Grid */
 .input-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -130,12 +118,11 @@ input[type="number"]:focus {
   background-color: #333;
 }
 
-/* Button */
 .btn-primary {
   background-color: var(--brand-green);
   color: #000;
   border: none;
-  border-radius: 500px; /* Pill shape */
+  border-radius: 500px;
   padding: 16px 32px;
   font-size: 1rem;
   font-weight: 700;
@@ -152,7 +139,6 @@ input[type="number"]:focus {
   transform: scale(1.02);
 }
 
-/* Sidebar Dashboard */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -208,7 +194,6 @@ input[type="number"]:focus {
   margin-bottom: 0;
 }
 
-/* The "Your Daily Mix" Insight Card */
 .insight-card {
   background: linear-gradient(135deg, #1DB954 0%, #121212 100%);
   position: relative;

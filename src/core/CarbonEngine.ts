@@ -1,30 +1,52 @@
+import type { EmissionFactors, BehavioralNudge, RelatableEquivalents } from './constants';
+
+export interface DailyLogInputs {
+  transportation: Record<keyof EmissionFactors['transportation_per_km'], number>;
+  diet: Record<keyof EmissionFactors['diet_per_serving'], number>;
+  energy: Record<keyof EmissionFactors['energy_and_tech_per_hour'], number>;
+}
+
+export interface Breakdown {
+  transportation: number;
+  diet: number;
+  energy: number;
+}
+
+export interface CalculationResult {
+  totalKgCO2e: number;
+  breakdown: Breakdown;
+  dominantCategory: string | null;
+  dominantKey: string | null;
+}
+
+export interface EquivalentResult {
+  smartphoneCharges: number;
+  milesDrivenGasCar: number;
+  daysTreeAbsorption: number;
+}
+
 /**
  * CarbonEngine
  * Pure computation layer — no DOM access, no storage access.
- * Takes data in, returns data out. Fully unit-testable in isolation.
+ * Fully unit-testable in isolation.
  */
-export default class CarbonEngine {
-  /**
-   * @param {Object} emissionFactors - baseline_emission_factors_kg_co2e object
-   * @param {Array} nudges - behavioral_nudges array
-   * @param {Object} equivalents - relatable_equivalents_per_1_kg_co2e object
-   */
-  constructor(emissionFactors, nudges, equivalents) {
+export class CarbonEngine {
+  private factors: EmissionFactors;
+  private equivalents: RelatableEquivalents;
+  private nudgeMap: Record<string, string | null>;
+
+  constructor(
+    emissionFactors: EmissionFactors,
+    nudges: BehavioralNudge[],
+    equivalents: RelatableEquivalents
+  ) {
     this.factors = emissionFactors;
     this.equivalents = equivalents;
-
-    // Map nudges by category once at construction — O(1) lookup at runtime
-    // instead of Array.find() scanning on every insight request.
     this.nudgeMap = this._buildNudgeMap(nudges);
   }
 
-  /**
-   * Maps each emission category to its most relevant nudge.
-   * Explicit mapping (not string-matching) avoids fragile coupling
-   * to nudge wording, which can change independently of category keys.
-   */
-  _buildNudgeMap(nudges) {
-    const findNudge = (action) => {
+  private _buildNudgeMap(nudges: BehavioralNudge[]): Record<string, string | null> {
+    const findNudge = (action: string) => {
       const match = nudges.find((n) => n.action === action);
       return match ? match.personalized_insight : null;
     };
@@ -39,28 +61,22 @@ export default class CarbonEngine {
       energy_laundry_hot_wash_dry: findNudge('Cold Wash & Line Dry'),
       energy_streaming_video: findNudge('Digital Efficiency'),
       energy_room_light_incandescent: findNudge('LED Optimization'),
-      // fallback for low-impact categories with no dedicated high-leverage nudge
       default: findNudge('Eliminate Phantom Loads'),
     };
   }
 
-  /**
-   * Calculates total daily footprint and per-category subtotals.
-   * @param {Object} dailyLog - { transportation: {km...}, diet: {servings...}, energy: {hours...} }
-   * @returns {{ totalKgCO2e: number, breakdown: Object, dominantCategory: string|null, dominantKey: string|null }}
-   */
-  calculateDailyFootprint(dailyLog) {
-    const breakdown = { transportation: 0, diet: 0, energy: 0 };
-    let dominantKey = null; // e.g. "transportation_gas_car" — most specific emitter
+  public calculateDailyFootprint(dailyLog: DailyLogInputs): CalculationResult {
+    const breakdown: Breakdown = { transportation: 0, diet: 0, energy: 0 };
+    let dominantKey: string | null = null;
     let dominantValue = 0;
 
-    const categoryFactorMap = {
+    const categoryFactorMap: Record<keyof DailyLogInputs, Record<string, number>> = {
       transportation: this.factors.transportation_per_km,
       diet: this.factors.diet_per_serving,
       energy: this.factors.energy_and_tech_per_hour,
     };
 
-    for (const category of Object.keys(categoryFactorMap)) {
+    for (const category of Object.keys(categoryFactorMap) as Array<keyof DailyLogInputs>) {
       const userEntries = dailyLog[category];
       const factorSet = categoryFactorMap[category];
 
@@ -69,7 +85,6 @@ export default class CarbonEngine {
       for (const [activity, amount] of Object.entries(userEntries)) {
         const factor = factorSet[activity];
 
-        // Guard against malformed input keys (typos, future schema drift)
         if (typeof factor !== 'number' || typeof amount !== 'number' || amount <= 0) {
           continue;
         }
@@ -77,8 +92,6 @@ export default class CarbonEngine {
         const emission = factor * amount;
         breakdown[category] += emission;
 
-        // Track the single highest-emitting activity across ALL categories,
-        // not just the highest category — this is what makes the nudge specific.
         if (emission > dominantValue) {
           dominantValue = emission;
           dominantKey = `${category}_${activity}`;
@@ -95,31 +108,20 @@ export default class CarbonEngine {
         diet: this._round(breakdown.diet),
         energy: this._round(breakdown.energy),
       },
-      dominantKey, // e.g. "transportation_gas_car"
+      dominantKey,
       dominantCategory: dominantKey ? dominantKey.split('_')[0] : null,
     };
   }
 
-  /**
-   * Returns the single most relevant behavioral nudge for the day,
-   * based on the highest-emitting specific activity (not just category).
-   * @param {Object} dailyLog
-   * @returns {string} personalized insight text
-   */
-  getPersonalizedInsight(dailyLog) {
+  public getPersonalizedInsight(dailyLog: DailyLogInputs): string {
     const { dominantKey } = this.calculateDailyFootprint(dailyLog);
     if (!dominantKey) {
       return this.nudgeMap.default || 'Log an activity to get a personalized insight.';
     }
-    return this.nudgeMap[dominantKey] || this.nudgeMap.default;
+    return this.nudgeMap[dominantKey] || this.nudgeMap.default || 'Log an activity to get a personalized insight.';
   }
 
-  /**
-   * Converts a kg CO2e value (typically "saved") into relatable equivalents.
-   * @param {number} totalKgSaved
-   * @returns {{ smartphoneCharges: number, milesDrivenGasCar: number, daysTreeAbsorption: number }}
-   */
-  getRelatableEquivalent(totalKgSaved) {
+  public getRelatableEquivalent(totalKgSaved: number): EquivalentResult {
     if (typeof totalKgSaved !== 'number' || totalKgSaved <= 0) {
       return { smartphoneCharges: 0, milesDrivenGasCar: 0, daysTreeAbsorption: 0 };
     }
@@ -131,8 +133,7 @@ export default class CarbonEngine {
     };
   }
 
-  /** Rounds to 2 decimal places — avoids floating point noise (e.g. 5.840000000001) */
-  _round(num) {
+  private _round(num: number): number {
     return Math.round(num * 100) / 100;
   }
 }
