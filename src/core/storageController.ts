@@ -1,13 +1,18 @@
-/**
- * storageController.js
- *
- * Thin wrapper to handle reading and writing to LocalStorage.
- * Keeps state persistent across sessions.
- */
+import type { DailyLogInputs, EquivalentResult } from './CarbonEngine';
 
 const STORAGE_KEY = "cft_state";
 
-const DEFAULT_STATE = {
+export interface AppState {
+  lastUpdated: string | null;
+  inputs: DailyLogInputs;
+  results: {
+    totalKgCO2e: number;
+    equivalents: EquivalentResult;
+    insight: string;
+  };
+}
+
+const DEFAULT_STATE: AppState = {
   lastUpdated: null,
   inputs: {
     transportation: {
@@ -35,35 +40,27 @@ const DEFAULT_STATE = {
   },
   results: {
     totalKgCO2e: 0,
-    equivalents: {},
-    insight: ""
+    equivalents: { smartphoneCharges: 0, milesDrivenGasCar: 0, daysTreeAbsorption: 0 },
+    insight: "Log an activity to get a personalized insight."
   }
 };
 
 export const storageController = {
-  /**
-   * Retrieves the current state from LocalStorage,
-   * or returns the DEFAULT_STATE if not found or on error.
-   */
-  get() {
+  get(): AppState {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_STATE));
         return DEFAULT_STATE;
       }
-      return JSON.parse(stored);
+      return JSON.parse(stored) as AppState;
     } catch (error) {
       console.error("Storage read error:", error);
       return DEFAULT_STATE;
     }
   },
 
-  /**
-   * Saves the provided data to LocalStorage.
-   * @param {Object} data - The state to save.
-   */
-  save(data) {
+  save(data: AppState): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (error) {

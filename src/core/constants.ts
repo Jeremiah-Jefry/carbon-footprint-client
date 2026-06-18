@@ -1,14 +1,44 @@
 /**
- * constants.js
- *
- * This file encapsulates the empirical baseline emission factors,
- * psychologically targeted behavioral nudges, and mathematically standardized
- * relatable equivalents for the Carbon Footprint Tracker.
- *
- * Data is extracted and formatted as a JavaScript object to be consumed
- * directly by the client-side application logic without requiring secondary
- * parsing or complex backend aggregations.
+ * Core constants for the Carbon Footprint Tracker.
+ * Extracted from original specifications (Gemini.pdf).
+ * Contains empirical baseline emission factors, behavioral nudges, and equivalents.
  */
+
+export interface EmissionFactors {
+  transportation_per_km: {
+    walking: number;
+    cycling: number;
+    gas_car: number;
+    ev: number;
+    bus: number;
+    train: number;
+  };
+  diet_per_serving: {
+    beef: number;
+    chicken: number;
+    fish: number;
+    vegetarian: number;
+    vegan: number;
+  };
+  energy_and_tech_per_hour: {
+    streaming_video: number;
+    laundry_hot_wash_dry: number;
+    laundry_cold_wash_air_dry: number;
+    room_light_led: number;
+    room_light_incandescent: number;
+  };
+}
+
+export interface BehavioralNudge {
+  action: string;
+  personalized_insight: string;
+}
+
+export interface RelatableEquivalents {
+  smartphone_charges: number;
+  miles_driven_gas_car: number;
+  days_tree_absorption: number;
+}
 
 export const constants = {
   baseline_emission_factors_kg_co2e: {
@@ -34,7 +64,7 @@ export const constants = {
       room_light_led: 0.0046,
       room_light_incandescent: 0.027
     }
-  },
+  } as EmissionFactors,
   behavioral_nudges: [
     {
       action: "Meatless Substitution",
@@ -64,10 +94,10 @@ export const constants = {
       action: "LED Optimization",
       personalized_insight: "Turning off unnecessary lights and relying on LEDs slashes your lighting footprint by over 80% compared to traditional bulbs, instantly lowering grid demand."
     }
-  ],
+  ] as BehavioralNudge[],
   relatable_equivalents_per_1_kg_co2e: {
     smartphone_charges: 121.65,
     miles_driven_gas_car: 2.48,
     days_tree_absorption: 16.6
-  }
+  } as RelatableEquivalents
 };
