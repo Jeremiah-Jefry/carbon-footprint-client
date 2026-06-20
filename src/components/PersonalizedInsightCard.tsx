@@ -20,14 +20,23 @@ export const PersonalizedInsightCard: React.FC<PersonalizedInsightCardProps> = (
   }
 
   return (
-    <div className="card insight-card" style={{ marginTop: '24px', padding: 0 }}>
-      <div className="insight-content" style={{ padding: '32px' }}>
-        <div style={{ color: 'var(--accent-green)', fontWeight: 700, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>💡</span> TIP
-        </div>
-        <h2>{nudge.action}</h2>
-        <p>{nudge.insight}</p>
+    <div className="insight-card" style={{ textAlign: 'left' }}>
+      <div style={{
+        fontSize: '10px',
+        textTransform: 'uppercase',
+        letterSpacing: '1.5px',
+        color: '#00e676',
+        marginBottom: '8px',
+        fontWeight: 600
+      }}>
+        💡 TODAY'S INSIGHT
       </div>
+      <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'white', marginBottom: '4px' }}>
+        {nudge.action}
+      </h2>
+      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '12px', lineHeight: 1.4 }}>
+        {nudge.insight}
+      </p>
     </div>
   );
 };

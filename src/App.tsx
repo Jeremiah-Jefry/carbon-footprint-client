@@ -64,18 +64,36 @@ const App: React.FC = () => {
 
       <GamificationHeader />
 
-      <header className="hero" style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontFamily: 'var(--font-display)' }}>Carbon Footprint</h1>
-        <p>Your environmental impact, tracked and rewarded.</p>
-      </header>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          background: 'rgba(0,230,118,0.08)',
+          border: '1px solid rgba(0,230,118,0.15)',
+          borderRadius: 999, padding: '4px 14px',
+          fontSize: 12, color: '#00e676', marginBottom: 12,
+          letterSpacing: '1px',
+          fontWeight: 600
+        }}>
+          🌍 CARBON FOOTPRINT TRACKER
+        </div>
+        <h1 style={{
+          fontSize: 48, fontWeight: 800, letterSpacing: '-1px',
+          background: 'linear-gradient(135deg, #ffffff 60%, #00e676)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          lineHeight: 1.1, marginBottom: 8, fontFamily: 'var(--font-display)'
+        }}>Track. Reduce. Win.</h1>
+        <p style={{ fontSize: 16, color: '#9e9e9e', maxWidth: 480 }}>
+          Every action you log earns XP, unlocks badges, and moves you closer to a zero-carbon lifestyle.
+        </p>
+      </div>
 
       <div className="layout-grid">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           {isLoggedToday && !showEdit ? (
-            <div className="card" style={{ textAlign: 'center', borderColor: 'var(--accent-green)', boxShadow: 'var(--glow-green)' }}>
+            <div className="app-card" style={{ textAlign: 'center', borderColor: 'var(--accent-green)', boxShadow: 'var(--glow-green)' }}>
               <h2 style={{ color: 'var(--accent-green)', marginBottom: '8px' }}>✓ Today's Log is In!</h2>
               <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Great job logging your daily footprint.</p>
-              <button className="btn-primary" style={{ width: 'auto', backgroundColor: 'var(--bg-highlight)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }} onClick={() => setShowEdit(true)}>
+              <button className="calculate-btn" style={{ width: 'auto', backgroundColor: 'var(--bg-highlight)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }} onClick={() => setShowEdit(true)}>
                 Edit Today's Log
               </button>
             </div>
@@ -90,6 +108,7 @@ const App: React.FC = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           <Dashboard
             totalKgCO2e={carbonState.results.totalKgCO2e}
+            breakdown={carbonState.results.breakdown}
             dominantCategory={carbonState.results.dominantCategory}
             dominantKey={carbonState.results.dominantKey}
             xpEarned={xpEarnedJustNow}

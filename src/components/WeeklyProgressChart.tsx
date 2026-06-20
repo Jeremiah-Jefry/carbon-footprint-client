@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { GameContext } from '../context/GameContext';
-import { GLOBAL_DAILY_AVERAGE_KG } from '../data/emissionFactors';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 
 export const WeeklyProgressChart: React.FC = () => {
   const { state } = useContext(GameContext);
@@ -15,64 +14,87 @@ export const WeeklyProgressChart: React.FC = () => {
   const data = recentLogs.map(log => {
     const d = new Date(log.date);
     return {
-      name: d.toLocaleDateString('en-US', { weekday: 'short' }),
+      day: d.toLocaleDateString('en-US', { weekday: 'short' }),
       date: log.date,
-      co2: log.totalKgCO2e,
+      kg: log.totalKgCO2e,
       xp: log.xpEarned
     };
   });
 
   return (
-    <div className="card" style={{ height: '100%', minHeight: '350px', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-card" style={{ height: '100%', minHeight: '350px', display: 'flex', flexDirection: 'column' }}>
       <div className="card-header" style={{ marginBottom: '16px' }}>
         <h2 style={{ fontFamily: 'var(--font-display)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span>📈</span> Weekly Trend
         </h2>
       </div>
 
-      {data.length === 0 ? (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', gap: '16px', backgroundColor: 'var(--bg-highlight)', borderRadius: '12px', margin: '8px 0' }}>
-          <div style={{ fontSize: '3rem', filter: 'grayscale(100%)', opacity: 0.5 }}>📊</div>
-          <p style={{ margin: 0, fontWeight: 500, fontSize: '0.95rem' }}>Log your activities to see your trend here.</p>
+      {data.length < 2 ? (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center', padding: '32px 16px' }}>
+            <div style={{
+              width: 64, height: 64, margin: '0 auto 16px',
+              background: 'rgba(0,230,118,0.08)',
+              border: '1px solid rgba(0,230,118,0.15)',
+              borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 28
+            }}>📊</div>
+            <p style={{ fontSize: 14, color: '#ffffff', fontWeight: 600, marginBottom: 4 }}>
+              Your trend starts here
+            </p>
+            <p style={{ fontSize: 12, color: '#616161', margin: 0 }}>
+              Log 2+ days to see your weekly CO₂e trend
+            </p>
+          </div>
         </div>
       ) : (
         <div style={{ flex: 1, width: '100%', minHeight: 250 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" vertical={false} />
-              <XAxis dataKey="name" stroke="var(--text-secondary)" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="var(--text-secondary)" fontSize={12} tickLine={false} axisLine={false} />
-              <Tooltip content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  return (
-                    <div style={{
-                      backgroundColor: 'var(--bg-card)',
-                      border: '1px solid var(--border-subtle)',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
-                    }}>
-                      <p style={{ margin: 0, fontWeight: 700, color: 'var(--text-primary)' }}>{label}</p>
-                      <p style={{ margin: '4px 0', color: 'var(--accent-green)' }}>
-                        {payload[0].value} kg CO₂e
-                      </p>
-                      {payload[0].payload.xp && (
-                         <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                           {payload[0].payload.xp} XP Earned
-                         </p>
-                      )}
-                    </div>
-                  );
-                }
-                return null;
-              }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
-              <ReferenceLine y={GLOBAL_DAILY_AVERAGE_KG} stroke="var(--accent-red)" strokeDasharray="3 3" label={{ position: 'top', value: 'Avg', fill: 'var(--accent-red)', fontSize: 10 }} />
-              <Bar
-                dataKey="co2"
-                fill="var(--accent-green)"
-                radius={[4, 4, 0, 0]}
-                maxBarSize={40}
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={data} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}>
+              <CartesianGrid vertical={false} stroke="rgba(255,255,255,0.05)" />
+              <XAxis
+                dataKey="day"
+                tick={{ fill: '#616161', fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
               />
+              <YAxis
+                tick={{ fill: '#616161', fontSize: 11 }}
+                axisLine={false}
+                tickLine={false}
+              />
+              <ReferenceLine
+                y={12}
+                stroke="rgba(239, 83, 80, 0.5)"
+                strokeDasharray="4 4"
+                label={{ value: 'Global Avg', position: 'right', fill: '#616161', fontSize: 10 }}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: '#1a1a1a',
+                  border: '1px solid #2a2a2a',
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+                labelStyle={{ color: '#9e9e9e' }}
+                formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Footprint']}
+                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+              />
+              <Bar
+                dataKey="kg"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={32}
+                fill="#00e676"
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={entry.kg > 12 ? '#ef5350' : entry.kg > 8 ? '#ffd600' : '#00e676'}
+                    fillOpacity={0.85}
+                  />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
