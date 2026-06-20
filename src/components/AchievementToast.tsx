@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { GameContext } from '../context/GameContext';
 import { ACHIEVEMENTS } from '../data/achievements';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export const AchievementToast: React.FC = () => {
   const { state, dispatch } = useContext(GameContext);
@@ -31,43 +30,37 @@ export const AchievementToast: React.FC = () => {
   }, [currentToast, dispatch]);
 
   return (
-    <AnimatePresence>
+    <>
       {currentToast && (
-        <motion.div
-          initial={{ opacity: 0, y: -50, x: 50 }}
-          animate={{ opacity: 1, y: 0, x: 0 }}
-          exit={{ opacity: 0, y: -20, scale: 0.9 }}
-          transition={{ duration: 0.4, type: 'spring' }}
+        <div
           style={{
             position: 'fixed',
-            top: '24px',
+            top: '80px',
             right: '24px',
-            zIndex: 9999,
-            backgroundColor: 'var(--bg-card)',
-            border: '1px solid var(--accent-green)',
-            borderRadius: 'var(--radius-card)',
-            padding: '16px 24px',
-            boxShadow: 'var(--glow-green)',
+            zIndex: 1000,
+            background: 'linear-gradient(135deg, #0a2e0a, #163d16)',
+            border: '1px solid rgba(0,230,118,0.3)',
+            borderRadius: '16px',
+            padding: '16px 20px',
+            minWidth: '280px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,230,118,0.1)',
             display: 'flex',
             alignItems: 'center',
             gap: '16px',
-            minWidth: '300px'
+            animation: 'toastIn 0.4s ease forwards'
           }}
         >
-          <div style={{ fontSize: '2.5rem', lineHeight: 1 }}>{currentToast.icon}</div>
+          <div style={{ fontSize: '32px', lineHeight: 1 }}>{currentToast.icon}</div>
           <div>
-            <div style={{ color: 'var(--accent-green)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>
+            <div style={{ color: '#00e676', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '4px' }}>
               Achievement Unlocked!
             </div>
-            <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '1.1rem', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>
+            <div style={{ color: 'white', fontWeight: 700, fontSize: '16px', marginBottom: '4px' }}>
               {currentToast.title}
             </div>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.3 }}>
-              {currentToast.description}
-            </div>
           </div>
-        </motion.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 };
