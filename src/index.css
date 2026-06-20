@@ -1,12 +1,31 @@
 :root {
-  --bg-base: #121212;
-  --bg-elevated: #181818;
+  --bg-primary: #0a0a0a;
+  --bg-card: #161616;
+  --bg-card-hover: #1e1e1e;
+  --accent-green: #00e676;
+  --accent-green-dim: #43a047;
+  --accent-amber: #ffb300;
+  --accent-red: #ef5350;
+  --accent-blue: #29b6f6;
+  --text-primary: #ffffff;
+  --text-secondary: #9e9e9e;
+  --text-muted: #616161;
+  --border-subtle: #2a2a2a;
+  --glow-green: 0 0 20px rgba(0, 230, 118, 0.3);
+  --glow-gold: 0 0 20px rgba(255, 215, 0, 0.4);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: system-ui, -apple-system, sans-serif;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+
+  --bg-base: var(--bg-primary);
+  --bg-elevated: var(--bg-card);
   --bg-highlight: #282828;
-  --text-base: #b3b3b3;
-  --text-highlight: #ffffff;
-  --brand-green: #1ed760;
-  --brand-green-hover: #1db954;
-  --card-radius: 12px;
+  --text-base: var(--text-secondary);
+  --text-highlight: var(--text-primary);
+  --brand-green: var(--accent-green);
+  --brand-green-hover: var(--accent-green-dim);
+  --card-radius: var(--radius-card);
   --input-radius: 6px;
   --transition: 0.3s ease;
 }
@@ -20,9 +39,13 @@
 body {
   background-color: var(--bg-base);
   color: var(--text-base);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6, .display-font {
+  font-family: var(--font-display);
 }
 
 .container {
@@ -55,8 +78,9 @@ body {
 }
 
 .card {
-  background-color: var(--bg-elevated);
-  border-radius: var(--card-radius);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
   padding: 32px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
@@ -238,4 +262,26 @@ input[type="number"]:focus {
   .layout-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Gamification Utilities */
+.text-green { color: var(--accent-green); }
+.text-amber { color: var(--accent-amber); }
+.text-red { color: var(--accent-red); }
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 10px rgba(0, 230, 118, 0.2); }
+  50% { box-shadow: var(--glow-green); }
+  100% { box-shadow: 0 0 10px rgba(0, 230, 118, 0.2); }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes float-up {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-30px); opacity: 0; }
 }
