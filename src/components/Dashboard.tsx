@@ -48,18 +48,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ totalKgCO2e, dominantCateg
   const isBelowAverage = totalKgCO2e < GLOBAL_DAILY_AVERAGE_KG;
 
   let colorClass = 'text-green';
-  if (totalKgCO2e >= 6 && totalKgCO2e <= 12) colorClass = 'text-amber';
-  if (totalKgCO2e > 12) colorClass = 'text-red';
+  let glowColor = 'rgba(0, 230, 118, 0.4)';
+  if (totalKgCO2e >= 6 && totalKgCO2e <= 12) { colorClass = 'text-amber'; glowColor = 'rgba(255, 179, 0, 0.4)'; }
+  if (totalKgCO2e > 12) { colorClass = 'text-red'; glowColor = 'rgba(239, 83, 80, 0.4)'; }
 
   return (
     <aside className="sidebar">
-      <div className="card dashboard-card" style={{ position: 'relative' }}>
-        <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>Total Daily Footprint</h2>
+      <div className="card dashboard-card" style={{ position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%', background: `radial-gradient(circle at center, ${glowColor} 0%, transparent 60%)`, opacity: 0.15, zIndex: 0, pointerEvents: 'none' }}></div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700 }}>Total Daily Footprint</h2>
 
-        <div className="footprint-number">
-          <span className={colorClass} style={{ transition: 'color 0.3s ease' }}>{displayTotal.toFixed(2)}</span>
-          <small>kg CO₂e</small>
-        </div>
+          <div className="footprint-number">
+            <span className={colorClass} style={{ transition: 'all 0.3s ease', textShadow: `0 0 30px ${glowColor}` }}>{displayTotal.toFixed(2)}</span>
+            <small>kg CO₂e</small>
+          </div>
 
         {totalKgCO2e > 0 && (
           <div style={{
@@ -98,6 +101,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ totalKgCO2e, dominantCateg
         </AnimatePresence>
 
         {totalKgCO2e > 0 && <ImpactTranslator totalKgCO2e={totalKgCO2e} />}
+        </div>
       </div>
 
       {totalKgCO2e > 0 && (

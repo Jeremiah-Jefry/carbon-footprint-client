@@ -33,62 +33,77 @@ export const InputForm: React.FC<InputFormProps> = ({ initialInputs, onSubmit })
 
       <form id="footprint-form" onSubmit={handleSubmit}>
         <div className="section-group" role="group" aria-labelledby="transport-heading">
-          <h3 id="transport-heading">Transportation (km)</h3>
+          <h3 id="transport-heading" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span>🚗</span> Transportation</h3>
           <div className="input-grid">
             {Object.keys(inputs.transportation).map((key) => (
               <div className="input-group" key={`transportation-${key}`}>
-                <label htmlFor={`transportation-${key}`}>{key.replace('_', ' ')}</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  id={`transportation-${key}`}
-                  value={inputs.transportation[key as keyof DailyLogInputs['transportation']] || ''}
-                  onChange={(e) => handleChange('transportation', key, e.target.value)}
-                  aria-label={`Distance for ${key.replace('_', ' ')} in kilometers`}
-                />
+                <label htmlFor={`transportation-${key}`}>{key.replace(/_/g, ' ')}</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="0"
+                    id={`transportation-${key}`}
+                    value={inputs.transportation[key as keyof DailyLogInputs['transportation']] || ''}
+                    onChange={(e) => handleChange('transportation', key, e.target.value)}
+                    aria-label={`Distance for ${key.replace(/_/g, ' ')} in kilometers`}
+                  />
+                  <span style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '0.9rem', pointerEvents: 'none' }}>km</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
         <div className="section-group" role="group" aria-labelledby="diet-heading">
-          <h3 id="diet-heading">Diet (servings)</h3>
+          <h3 id="diet-heading" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span>🍽️</span> Diet</h3>
           <div className="input-grid">
             {Object.keys(inputs.diet).map((key) => (
               <div className="input-group" key={`diet-${key}`}>
-                <label htmlFor={`diet-${key}`}>{key.replace('_', ' ')}</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  id={`diet-${key}`}
-                  value={inputs.diet[key as keyof DailyLogInputs['diet']] || ''}
-                  onChange={(e) => handleChange('diet', key, e.target.value)}
-                  aria-label={`Servings of ${key.replace('_', ' ')}`}
-                />
+                <label htmlFor={`diet-${key}`}>{key.replace(/_/g, ' ')}</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="0"
+                    id={`diet-${key}`}
+                    value={inputs.diet[key as keyof DailyLogInputs['diet']] || ''}
+                    onChange={(e) => handleChange('diet', key, e.target.value)}
+                    aria-label={`Servings of ${key.replace(/_/g, ' ')}`}
+                  />
+                  <span style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '0.9rem', pointerEvents: 'none' }}>srv</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
         <div className="section-group" role="group" aria-labelledby="energy-heading">
-          <h3 id="energy-heading">Energy Usage (hours/loads)</h3>
+          <h3 id="energy-heading" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span>⚡</span> Energy Usage</h3>
           <div className="input-grid">
-            {Object.keys(inputs.energy).map((key) => (
-              <div className="input-group" key={`energy-${key}`}>
-                <label htmlFor={`energy-${key}`}>{key.replace(/_/g, ' ')}</label>
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  id={`energy-${key}`}
-                  value={inputs.energy[key as keyof DailyLogInputs['energy']] || ''}
-                  onChange={(e) => handleChange('energy', key, e.target.value)}
-                  aria-label={`Usage amount for ${key.replace(/_/g, ' ')}`}
-                />
-              </div>
-            ))}
+            {Object.keys(inputs.energy).map((key) => {
+              const unit = key.includes('laundry') ? 'loads' : 'hrs';
+              return (
+                <div className="input-group" key={`energy-${key}`}>
+                  <label htmlFor={`energy-${key}`}>{key.replace(/_/g, ' ')}</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="number"
+                      min="0"
+                      step="any"
+                      placeholder="0"
+                      id={`energy-${key}`}
+                      value={inputs.energy[key as keyof DailyLogInputs['energy']] || ''}
+                      onChange={(e) => handleChange('energy', key, e.target.value)}
+                      aria-label={`Usage amount for ${key.replace(/_/g, ' ')}`}
+                    />
+                    <span style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: '0.9rem', pointerEvents: 'none' }}>{unit}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

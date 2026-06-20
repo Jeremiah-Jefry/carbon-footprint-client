@@ -35,16 +35,19 @@ export const ImpactTranslator: React.FC<ImpactTranslatorProps> = ({ totalKgCO2e 
           initial="hidden"
           animate="visible"
           variants={cardVariants}
+          whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.08)', y: -2 }}
           style={{
             backgroundColor: 'var(--bg-highlight)',
             border: '1px solid var(--border-subtle)',
-            borderRadius: '12px',
-            padding: '16px',
+            borderRadius: '16px',
+            padding: '20px 16px',
             textAlign: 'center',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+            transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
           }}
         >
           <div style={{ fontSize: '2rem' }}>{card.icon}</div>

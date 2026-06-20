@@ -34,7 +34,7 @@ export const DailyChallengesCard: React.FC = () => {
               transition: 'all 0.3s ease'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
               <button
                 onClick={() => dispatch({ type: 'TOGGLE_CHALLENGE', payload: challenge.id })}
                 disabled={!challenge.manual && !challenge.completed}
@@ -55,11 +55,12 @@ export const DailyChallengesCard: React.FC = () => {
               >
                 {challenge.completed && '✓'}
               </button>
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
                   fontWeight: 500,
                   textDecoration: challenge.completed ? 'line-through' : 'none',
-                  color: challenge.completed ? 'var(--text-secondary)' : 'var(--text-primary)'
+                  color: challenge.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                  wordBreak: 'break-word'
                 }}>
                   {challenge.text}
                 </div>
@@ -72,11 +73,13 @@ export const DailyChallengesCard: React.FC = () => {
             <div style={{
               backgroundColor: challenge.completed ? 'transparent' : 'rgba(0, 230, 118, 0.1)',
               color: 'var(--accent-green)',
-              padding: '4px 8px',
-              borderRadius: '4px',
-              fontSize: '0.8rem',
+              padding: '6px 10px',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
               fontWeight: 700,
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              marginLeft: '12px'
             }}>
               +{challenge.reward} XP
             </div>

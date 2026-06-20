@@ -31,8 +31,9 @@ export const WeeklyProgressChart: React.FC = () => {
       </div>
 
       {data.length === 0 ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
-          Log your activities to see your trend here.
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', gap: '16px', backgroundColor: 'var(--bg-highlight)', borderRadius: '12px', margin: '8px 0' }}>
+          <div style={{ fontSize: '3rem', filter: 'grayscale(100%)', opacity: 0.5 }}>📊</div>
+          <p style={{ margin: 0, fontWeight: 500, fontSize: '0.95rem' }}>Log your activities to see your trend here.</p>
         </div>
       ) : (
         <div style={{ flex: 1, width: '100%', minHeight: 250 }}>
