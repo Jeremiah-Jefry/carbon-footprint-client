@@ -70,7 +70,7 @@ export class CarbonEngine {
     let dominantKey: string | null = null;
     let dominantValue = 0;
 
-    const categoryFactorMap: Record<keyof DailyLogInputs, Record<string, number>> = {
+    const categoryFactorMap: Record<keyof DailyLogInputs, Record<string, { value: number }>> = {
       transportation: this.factors.transportation_per_km,
       diet: this.factors.diet_per_serving,
       energy: this.factors.energy_and_tech_per_hour,
@@ -83,12 +83,13 @@ export class CarbonEngine {
       if (!userEntries) continue;
 
       for (const [activity, amount] of Object.entries(userEntries)) {
-        const factor = factorSet[activity];
+        const factorObj = factorSet[activity];
 
-        if (typeof factor !== 'number' || typeof amount !== 'number' || amount <= 0) {
+        if (!factorObj || typeof factorObj.value !== 'number' || typeof amount !== 'number' || amount <= 0) {
           continue;
         }
 
+        const factor = factorObj.value;
         const emission = factor * amount;
         breakdown[category] += emission;
 
