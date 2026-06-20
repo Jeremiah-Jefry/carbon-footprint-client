@@ -3,7 +3,6 @@ import type { ReactNode } from 'react';
 import { getLogs, getGamificationState, updateGamificationState, saveLog, getChallengesState, saveChallengesState } from '../utils/storage';
 import { generateDailyChallenges, CHALLENGE_POOL } from '../data/challenges';
 import { ACHIEVEMENTS } from '../data/achievements';
-import { GLOBAL_DAILY_AVERAGE_KG } from '../data/emissionFactors';
 
 interface StatState {
   totalDaysLogged: number;
@@ -83,7 +82,6 @@ function gameReducer(state: GamificationState, action: Action): GamificationStat
         todaysChallenges: newChallenges,
       };
 
-      // Persist challenges immediately
       const today = new Date().toISOString().split('T')[0];
       saveChallengesState({ date: today, challenges: newChallenges });
       updateGamificationState({ ...newState, todaysChallenges: undefined, newlyUnlockedAchievements: undefined });
@@ -95,7 +93,6 @@ function gameReducer(state: GamificationState, action: Action): GamificationStat
       const logData = action.payload;
       const today = logData.date;
 
-      // Update Streak
       let newStreak = state.currentStreak;
       if (state.lastLogDate !== today) {
         if (state.lastLogDate) {
@@ -114,7 +111,6 @@ function gameReducer(state: GamificationState, action: Action): GamificationStat
         }
       }
 
-      // Calculate XP from challenges completed
       let challengeXP = 0;
       const newChallenges = [...state.todaysChallenges];
 
@@ -133,7 +129,6 @@ function gameReducer(state: GamificationState, action: Action): GamificationStat
       const totalNewXP = logData.xpEarned + challengeXP;
       const newTotalXP = state.totalXP + totalNewXP;
 
-      // Update Stats
       const newStats = { ...state.stats };
       newStats.totalDaysLogged++;
       newStats.currentStreak = newStreak;
@@ -144,12 +139,11 @@ function gameReducer(state: GamificationState, action: Action): GamificationStat
       if (noCarbonTransport) newStats.noCarbonTransportDays++;
 
       if (logData.totalKgCO2e < 2) newStats.subTwoKgDays++;
-      if (logData.totalKgCO2e < GLOBAL_DAILY_AVERAGE_KG) newStats.belowAverageDays++;
+      if (logData.totalKgCO2e < 12.0) newStats.belowAverageDays++;
 
       if ((logData.inputs.energy.room_light_incandescent || 0) === 0) newStats.ledOnlyDays++;
       if ((logData.inputs.energy.laundry_hot_wash_dry || 0) === 0 && (logData.inputs.energy.laundry_cold_wash_air_dry || 0) > 0) newStats.coldWashDays++;
 
-      // Check achievements
       const newlyUnlocked: string[] = [];
       const newUnlockedAchievements = [...state.unlockedAchievements];
 
@@ -207,27 +201,30 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const gamificationState = getGamificationState();
-    const savedLogs = getLogs();
-    const challengeState = getChallengesState();
+    const hydrate = async () => {
+      const today = new Date().toISOString().split('T')[0];
+      const gamificationState = await getGamificationState();
+      const savedLogs = await getLogs();
+      const challengeState = getChallengesState();
 
-    let todaysChallenges = [];
-    if (challengeState && challengeState.date === today) {
-      todaysChallenges = challengeState.challenges;
-    } else {
-      todaysChallenges = generateDailyChallenges(gamificationState?.stats);
-      saveChallengesState({ date: today, challenges: todaysChallenges });
-    }
+      let todaysChallenges = [];
+      if (challengeState && challengeState.date === today) {
+        todaysChallenges = challengeState.challenges;
+      } else {
+        todaysChallenges = generateDailyChallenges(gamificationState?.stats);
+        saveChallengesState({ date: today, challenges: todaysChallenges });
+      }
 
-    dispatch({
-      type: 'HYDRATE',
-      payload: {
-        ...(gamificationState || {}),
-        logs: savedLogs,
-        todaysChallenges,
-      },
-    });
+      dispatch({
+        type: 'HYDRATE',
+        payload: {
+          ...(gamificationState || {}),
+          logs: savedLogs,
+          todaysChallenges,
+        },
+      });
+    };
+    hydrate();
   }, []);
 
   return (

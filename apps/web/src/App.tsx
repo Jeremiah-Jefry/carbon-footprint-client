@@ -9,53 +9,38 @@ import { AchievementsPanel } from './components/AchievementsPanel';
 import { DailyChallengesCard } from './components/DailyChallengesCard';
 import { WeeklyProgressChart } from './components/WeeklyProgressChart';
 import { LeaderboardStub } from './components/LeaderboardStub';
-import { hasTodayBeenLogged } from './utils/storage';
+import { hasTodayBeenLogged, setLoggedToday } from './utils/storage';
 import { calculateDailyXP } from './utils/scoring';
 
 const App: React.FC = () => {
-  const { state: carbonState, updateInputs } = useCarbonFootprint();
+  const { state: carbonState, updateInputs, engine } = useCarbonFootprint();
   const { dispatch } = useContext(GameContext);
   const [isLoggedToday, setIsLoggedToday] = useState(hasTodayBeenLogged());
   const [showEdit, setShowEdit] = useState(!isLoggedToday);
   const [xpEarnedJustNow, setXpEarnedJustNow] = useState(0);
 
-  const handleCalculate = (inputs: any) => {
+  const handleCalculate = async (inputs: any) => {
     updateInputs(inputs);
 
-    // We need to calculate the carbon results immediately for the game log
-    // We'll rely on the carbon hook for UI update but we calculate here for log
-    // Actually, useCarbonFootprint is synchronous? updateInputs is.
-    // However, it's safer to re-calc or just let useCarbonFootprint's useEffect update its state
-    // But updateInputs is synchronous state set.
+    const result = engine.calculateDailyFootprint(inputs);
+    const baseXP = calculateDailyXP(result.totalKgCO2e, inputs);
 
-    // Quick workaround to get result synchronously:
-    import('./core/constants').then(({ constants }) => {
-      import('./core/CarbonEngine').then(({ CarbonEngine }) => {
-        const engine = new CarbonEngine(
-          constants.baseline_emission_factors_kg_co2e,
-          constants.behavioral_nudges,
-          constants.relatable_equivalents_per_1_kg_co2e
-        );
-        const result = engine.calculateDailyFootprint(inputs);
-        const baseXP = calculateDailyXP(result.totalKgCO2e, inputs);
+    setXpEarnedJustNow(baseXP);
 
-        setXpEarnedJustNow(baseXP); // base XP before challenges
-
-        dispatch({
-          type: 'LOG_ACTIVITY',
-          payload: {
-            date: new Date().toISOString().split('T')[0],
-            inputs,
-            totalKgCO2e: result.totalKgCO2e,
-            breakdown: result.breakdown,
-            xpEarned: baseXP
-          }
-        });
-
-        setIsLoggedToday(true);
-        setShowEdit(false);
-      });
+    dispatch({
+      type: 'LOG_ACTIVITY',
+      payload: {
+        date: new Date().toISOString().split('T')[0],
+        inputs,
+        totalKgCO2e: result.totalKgCO2e,
+        breakdown: result.breakdown,
+        xpEarned: baseXP
+      }
     });
+
+    setLoggedToday();
+    setIsLoggedToday(true);
+    setShowEdit(false);
   };
 
   return (
